@@ -1,117 +1,99 @@
-/*************************************************************************
-                           Log  -  Header de la classe Log
-                             -------------------
-    début                : 10/01/2017
-    copyright            : (C) $2017$ par $Julien Charles-Nicolas$
-    e-mail               : $julien.charles-nicolas@insa-lyon.fr$
-*************************************************************************/
+//---------- Interface de la classe <CollectionDeLog> (fichier CollectionDeLog.h) ----------------
+#if ! defined ( CollectionDeLog_H )
+#define CollectionDeLog_H
 
-//---------- Interface du module <Log> (Log Log.h) -------------------
-#ifndef TP4_Log_H
-#define TP4_Log_H
-
-//------------------------------------------------------------------------
-// Rôle du module <Log>
-// Modélise les lignes du .log en objet Log
-//
-//------------------------------------------------------------------------
-
-/////////////////////////////////////////////////////////////////  INCLUDE
 //--------------------------------------------------- Interfaces utilisées
+#include<string>
+#include<map>
 #include <iostream>
-#include <string>
+
+#include "Log.h"
+
 using namespace std;
 //------------------------------------------------------------- Constantes
 
 //------------------------------------------------------------------ Types
-struct Informations
-{   string ip;
-    string logname;
-    string name;
-    string date;
-    string requete;
-    string type;
-    string status;
-    string data;
+struct dessin{
+    int compteur;
+    string cible;
     string referent;
-    string navigateur;
-    Informations(string i="", string l="", string na="", string d="", string r="",string t="",string s="", string da="", string re="", string n=""):ip(i) ,logname(l), name(na), date(d), requete(r), type(t), status(s), data(da), referent(re), navigateur(n){}
+    dessin(int c=0, string cible =" ", string referent = " ");
 };
 
+typedef map <string,dessin> mapGraph; //cibleref, structure inforamtions
+typedef map <string,int> mapTopDix; //cible, compteur
 
-class Log
+//------------------------------------------------------------------------
+// Rôle de la classe <CollectionDeLog>
+//
+//
+//------------------------------------------------------------------------
+
+class CollectionDeLog
 {
 //----------------------------------------------------------------- PUBLIC
 
 public:
 //----------------------------------------------------- Méthodes publiques
-     int GetHeure ();
+    // type Méthode ( liste des paramètres );
     // Mode d'emploi :
-    // Retourne l'heure du log
-    // Contrat :
     //
-
-    string GetType ();
-    // Mode d'emploi :
-    // Retourne le type de fichier de la cible
     // Contrat :
     //
 
 
 //------------------------------------------------- Surcharge d'opérateurs
-    Log & operator = ( const Log & unLog );
-    // Mode d'emploi :
-    //
-    // Contrat :
-    //
-
 
 //-------------------------------------------- Constructeurs - destructeur
-    Log ( const Log & unLog );
+
+    CollectionDeLog ( );
+    // Mode d'emploi :
+    //
+    // Contrat :
+    //
+
+    CollectionDeLog (const CollectionDeLog & unCollectionDeLog );
     // Mode d'emploi (constructeur de copie) :
     //
-    // Contrat :
+    // Contrat :char e='n'
     //
 
-    Log (string c="", Informations i=Informations()): cible(c), Infos(i){};
-    // Mode d'emploi :
-    // Crée un Log vide
-    // Contrat :
-    //
+    // nom du fichier, exlusion (e ou n), heure (uint ou -1), si topdix (o ou g), nomdugraph
+    CollectionDeLog (string nf, char e = 'n', int heure = -1, char topdix = 'o', string nfGraph = "unnamed.dot");
 
-    virtual ~Log ( );
+    virtual ~CollectionDeLog ( );
     // Mode d'emploi :
     //
     // Contrat :
     //
 
+
+    void RemplirMapTopDix (string nf);
+
+    void RemplirMapGraph (string nf);
+
+    void AfficherTopDix () const;
+    void EnregistrerGraph (string nfGraph) const;
 
 //------------------------------------------------------------------ PRIVE
 
-protected:
+
+
+private:
 //----------------------------------------------------- Méthodes protégées
 
-private:
-//------------------------------------------------------- Méthodes privées
-
-protected:
 //----------------------------------------------------- Attributs protégés
 
-private:
-//------------------------------------------------------- Attributs privés
-    string cible;
-    Informations Infos;
-//---------------------------------------------------------- Classes amies
-    friend istream & operator >> (istream& is, Log& f);
-    friend ostream & operator << (ostream& os, Log& f);
-    friend class CollectionDeLog;
-//-------------------------------------------------------- Classes privées
+    bool exclusion;
+    int heure;
 
-//----------------------------------------------------------- Types privés
+    mapTopDix myMapTopDix;
+    mapGraph myMapGraph;
+
+    friend class Log;
 
 };
 
-//---------------------------------------------- Types dépendants de <Log>
+//-------------------------------- Autres définitions dépendantes de <CollectionDeLog>
 
-
-#endif // TP4_Log_H
+#endif // CollectionDeLog_H
