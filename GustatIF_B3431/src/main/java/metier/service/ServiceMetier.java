@@ -29,7 +29,7 @@ import static util.GeoTest.getLatLng;
 
 /**
  *
- * @author B3431
+ * @author jcharlesni
  */
 public class ServiceMetier {
     
@@ -42,10 +42,10 @@ public class ServiceMetier {
     ServiceTechnique stechnique = new ServiceTechnique();
     Scanner clavier = new Scanner(System.in);
     
-    public Client signUpClient(String nom, String prenom, String mail, String adresse) {
+    public Client signUpClient(Client cl) {
         JpaUtil.creerEntityManager();
-        LatLng latlong = getLatLng(adresse);
-        Client cl = new Client(nom, prenom, mail, adresse);
+        LatLng latlong = getLatLng(cl.getAdresse());
+        
         try {
             JpaUtil.ouvrirTransaction();
             cdao.create(cl);
@@ -63,20 +63,12 @@ public class ServiceMetier {
     public Client singInClient(String mail){
         JpaUtil.creerEntityManager();
         ClientDAO cdao = new ClientDAO();
-        List<Client> clients = new ArrayList();
         Client cl = null;
         try {
-            clients = cdao.findAll(); 
-        } catch (Exception ex) {
+            cl = cdao.findClientByMail(mail); 
+    } catch (Exception ex) {
             Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
         }
-        for (int i = 0; i < clients.size(); i++) {
-		if(clients.get(i).getMail().equals(mail)){
-                    cl = clients.get(i);
-                    System.out.println("Bienvenue "+cl.getPrenom());
-                }
-        }
-        if(cl==null) System.out.println("Vous n'êtes pas encore inscrit!");
         JpaUtil.fermerEntityManager();
         return cl;
     }
@@ -107,7 +99,7 @@ public class ServiceMetier {
         JpaUtil.fermerEntityManager();
     }
     
-    public void checkCommande(Commande commande, Restaurant restaurant){
+        public void checkCommande(Commande commande, Restaurant restaurant){
         
         Client client = commande.getClient();
         Livreur livreur = stechnique.selectNewLivreur(commande.getPoidsTotal(), client, restaurant);
@@ -156,6 +148,10 @@ public class ServiceMetier {
         return clients;
     }
     
+    public List<Livreur> getLivreurs(){
+        return stechnique.getLivreurs();
+    }
+    
     public List<Commande> getCommandes(){
         JpaUtil.creerEntityManager();
         JpaUtil.ouvrirTransaction();
@@ -172,25 +168,25 @@ public class ServiceMetier {
     
     public void createLivreurs (){
         JpaUtil.creerEntityManager();
-        LivreurHumain h1 = new LivreurHumain("8 Rue Arago, Villeurbanne", 25852.0,
+        LivreurHumain h1 = new LivreurHumain("8 Rue Arago, Villeurbanne", 25000.0,
                 "Premier", "Fisrt", "premier@gustatif.fr");
-        LivreurHumain h2 = new LivreurHumain("80 Rue Léon Fabre, Villeurbanne", 18050.93,
+        LivreurHumain h2 = new LivreurHumain("80 Rue Léon Fabre, Villeurbanne", 23000.93,
                 "Deuxieme", "Second", "deuxieme@gustatif.fr");
-        LivreurHumain h3 = new LivreurHumain("8 Rue Wilhelmine, Villeurbanne", 20050.95,
+        LivreurHumain h3 = new LivreurHumain("8 Rue Wilhelmine, Villeurbanne", 20000.95,
                 "Troisieme", "Third", "troisieme@gustatif.fr");
-        LivreurHumain h4 = new LivreurHumain("9 Place de la Paix", 22540.79,
+        LivreurHumain h4 = new LivreurHumain("9 Place de la Paix", 18000.79,
                 "Quatrieme", "Forth", "quatrieme@gustatif.fr");
-        LivreurHumain h5 = new LivreurHumain("3 Allée Louis Pergaud", 26562.9,
+        LivreurHumain h5 = new LivreurHumain("3 Allée Louis Pergaud", 21500.9,
                 "Cinquieme", "Fifth", "cinquieme@gustatif.fr");
-        LivreurMachine m1 = new LivreurMachine("20 Rue des Peupliers, Villeurbanne", 2000.0,
-                "R1G1", 45.9);
+        LivreurMachine m1 = new LivreurMachine("20 Rue des Peupliers, Villeurbanne", 1500.0,
+                "R1G1", 55.9);
         LivreurMachine m2 = new LivreurMachine("7 Rue Pelisson, Villeurbanne", 2000.0,
-                "R2G2", 38.5);
-        LivreurMachine m3 = new LivreurMachine("16 Boulevard Niels Bohr, Villeurbanne", 2300.0,
-                "R3G3", 50.5);
-        LivreurMachine m4 = new LivreurMachine("11 Rue Mansard, Villeurbanne", 2200.0,
-                "R4G4", 20.5);
-        LivreurMachine m5 = new LivreurMachine("12 Rue Léon Piat, Villeurbanne", 1900.0,
+                "R2G2", 50.5);
+        LivreurMachine m3 = new LivreurMachine("16 Boulevard Niels Bohr, Villeurbanne", 2500.0,
+                "R3G3", 60.5);
+        LivreurMachine m4 = new LivreurMachine("11 Rue Mansard, Villeurbanne", 1700.0,
+                "R4G4", 80.5);
+        LivreurMachine m5 = new LivreurMachine("12 Rue Léon Piat, Villeurbanne", 2300.0,
                 "R5G5", 45.5);
         try {
             JpaUtil.ouvrirTransaction();
@@ -222,7 +218,5 @@ public class ServiceMetier {
         JpaUtil.validerTransaction();
         JpaUtil.fermerEntityManager();
     }
-    
-    
-    
+
 }

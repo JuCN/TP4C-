@@ -154,7 +154,7 @@ public class Commande implements Serializable{
                     break;
             case 3 : etat = "Annulée";
                     break;
-            default : System.out.println("Entrez 0, 1, 2, ou 3");
+            default :
                     break; 
         }
     }
