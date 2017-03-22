@@ -26,7 +26,7 @@ import util.GeoTest;
 
 /**
  *
- * @author B3431
+ * @author jcharlesni
  */
 public class ServiceTechnique {
     
@@ -104,10 +104,6 @@ public class ServiceTechnique {
         JpaUtil.fermerEntityManager();
         return livreurs;
     }
-    
-        
-    
-
     
     public void envoiMailInscription(int etat, Client cl){
         //si 0 echec si 1 reussi

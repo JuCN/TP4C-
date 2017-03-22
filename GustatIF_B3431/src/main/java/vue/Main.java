@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import metier.modele.Client;
 import metier.modele.Commande;
+import metier.modele.Livreur;
 import metier.modele.Produit;
 import metier.modele.Qte_Commande;
 import metier.modele.Restaurant;
@@ -30,9 +31,123 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         JpaUtil.init();
-        System.out.println("Bienvenue sur l'application GustatIF !");
-
         smetier.createLivreurs(); //a mettre que si pas de livreurs
+        
+        System.out.println("Bienvenue sur l'application GustatIF !");
+        
+        List<Integer> l10 = Arrays.asList(0, 1, 2);
+        Integer j = null;
+        while (j == null) {
+            j = lireInteger("Etes vous livreur(0) ou gestionnaire(1) ou client(2) ?", l10);
+        }
+        switch (j) {
+            case 0:
+                testLivreur();
+                break;
+            case 1:
+                testGestionnaire();
+                break;
+            case 2:
+                testClient();
+                break;
+        }
+        
+
+        JpaUtil.destroy();
+    }
+
+    //Fonctions Console
+    //Gestionaire - livreur
+    public static void testLivreur(){
+        Livreur livreur = null;
+        List<Livreur> livreurs = smetier.getLivreurs();
+        List<Integer> l = new ArrayList();
+        for (int i = 0; i < livreurs.size(); i++) {
+            System.out.println("(" + i + ")" + livreurs.get(i).getNom());
+            l.add(i);
+        }
+        Integer s = null;
+        while (s == null) {
+            s = lireInteger("Qui êtes vous ? #Entrez le numero correspondant", l);
+        }
+        livreur = livreurs.get(s);
+        Integer f = null;
+        while (f == null) {
+            f = lireInteger("Etes vous disponible ? oui (1) non (2)", Arrays.asList(0, 1));
+        }
+        if(f==1) {
+            livreur.setDisponibilite(true);
+            if(livreur.getCommandes().size()!=0)livreur.getCommandes().get(livreur.getCommandes().size()-1).setEtat(2);  
+        }
+        
+    }
+    
+    public static void testGestionnaire(){
+        
+        System.out.println("Bienvenue administrateur de l'application GustatIF !");
+
+        List<Integer> l = Arrays.asList(0, 1, 2, 3, 4);
+        Integer i = null;
+
+        while (i == null || i != 0) {
+            i = lireInteger("Souhaitez vous voir tous les restaurants (1), livreurs (2), "
+                    + "clients (3), livraisons en cours (4) ou quitter (0) ?", l);
+
+            switch (i) {
+                case 1:
+                    visualisationRestaurants();
+                    break;
+                case 2:
+                    visualisationLivreurs(); //faux on a pas les lat long mais l'adresse
+                    break;
+                case 3:
+                    visualisationClients();
+                    break;
+                case 4:
+                    visualisationCommandesEnCours(); //a tester avec commandes
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public static void visualisationRestaurants() {
+        List<Restaurant> restaurants = smetier.getRestaurants();
+        for (int i = 0; i < restaurants.size(); i++) {
+            System.out.println("(" + i + ")" + restaurants.get(i).getDenomination()
+                    + " Lattitude : " + restaurants.get(i).getLatitude() + " Longitude : " + restaurants.get(i).getLongitude());
+        }
+    }
+
+    public static void visualisationLivreurs() {
+        List<Livreur> livreurs = smetier.getLivreurs();
+        for (int i = 0; i < livreurs.size(); i++) {
+            System.out.println("(" + i + ")" + livreurs.get(i).getNom()
+                    + " Adresse : " + livreurs.get(i).getAdresse());
+        }
+    }
+
+    public static void visualisationClients() {
+        List<Client> clients = smetier.getClients();
+        for (int i = 0; i < clients.size(); i++) {
+            System.out.println("(" + i + ")" + clients.get(i).getPrenom() + " " + clients.get(i).getNom()
+                    + " Lattitude : " + clients.get(i).getLatitude() + " Longitude : " + clients.get(i).getLongitude());
+        }
+    }
+
+    public static void visualisationCommandesEnCours() {
+        List<Commande> commandes = smetier.getCommandes();
+        for (int i = 0; i < commandes.size(); i++) {
+            if (commandes.get(i).getEtat().equals("En cours")) {
+                System.out.println("Clients : " + commandes.get(i).getClient() + " Restaurant : " + commandes.get(i).getRestaurant()
+                        + " heure de debut : " + commandes.get(i).getDateDeb());
+            }
+        }
+    }
+
+    //Client
+    public static void testClient() {
         Client client = null;
         Integer n = firstPage();
         List<Integer> l = Arrays.asList(1, 2);
@@ -51,6 +166,7 @@ public class Main {
             client = signUp();
         }
         System.out.println("Vous êtes connectés !");
+        System.out.println("Bienvenue "+client.getPrenom());
         n = -1;
         List<Integer> l1 = Arrays.asList(0, 1);
         while (n != 0) {
@@ -61,10 +177,8 @@ public class Main {
             }
         }
 
-        JpaUtil.destroy();
     }
 
-    //Fonctions Console
     public static Integer firstPage() {
 
         List<Integer> l = Arrays.asList(1, 2);
@@ -73,7 +187,6 @@ public class Main {
             n = lireInteger("Souhaitez vous vous connecter(1) ou vous inscrire(2) ?", l);
         }
         return n;
-
     }
 
     public static Client signIn() {
@@ -90,7 +203,8 @@ public class Main {
         String prenom = lireChaine("Votre prénom :");
         String mail = lireChaine("Votre mail :");
         String adresse = lireChaine("Votre adresse :");
-        return smetier.signUpClient(nom, prenom, mail, adresse);
+        Client cl = new Client(nom, prenom, mail, adresse);
+        return smetier.signUpClient(cl);
     }
 
     public static void createCommande(Client client) {
