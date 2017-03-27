@@ -189,6 +189,10 @@ public class ServiceMetier {
         JpaUtil.fermerEntityManager();
         return commandes;
     }
+    
+    public List<Commande> getCommandesForLivreur(Livreur li) {
+        return li.getCommandes();
+    }
 
     public void createLivreurs() {
         JpaUtil.creerEntityManager();
