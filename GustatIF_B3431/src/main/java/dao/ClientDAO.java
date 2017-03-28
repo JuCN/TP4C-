@@ -19,6 +19,15 @@ public class ClientDAO {
             throw e;
         }
     }
+    
+    public void update(Client client) throws Exception {
+        EntityManager em = JpaUtil.obtenirEntityManager();
+        try {
+            em.merge(client);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 
     public Client findById(long id) throws Exception {
         EntityManager em = JpaUtil.obtenirEntityManager();

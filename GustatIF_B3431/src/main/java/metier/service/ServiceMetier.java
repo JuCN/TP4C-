@@ -18,11 +18,13 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.persistence.RollbackException;
 import metier.modele.Client;
 import metier.modele.Commande;
 import metier.modele.Livreur;
 import metier.modele.LivreurHumain;
 import metier.modele.LivreurMachine;
+import metier.modele.Produit;
 import metier.modele.Qte_Commande;
 import metier.modele.Restaurant;
 import static util.GeoTest.getLatLng;
@@ -102,20 +104,20 @@ public class ServiceMetier {
     public void checkCommande(Commande commande, Restaurant restaurant) {
         Client client = commande.getClient();
         boolean reussi = false;
-        Livreur livreur = stechnique.selectNewLivreur(commande.getPoidsTotal(), client, restaurant);
+        Livreur livreur = stechnique.selectNewLivreur(commande.getPoidsTotal(), client, restaurant, getLivreurs());
         if (livreur != null) {
             while (!reussi) {
                 commande.setLivreur(livreur);
                 livreur.setDisponibilite(false);
                 commande.setEtat(1);
                 try {
-                    stechnique.updateLivreur(livreur);
+                    updateLivreur(livreur);
                     reussi = true;
                 } catch (Exception ex) {
                     reussi = false;
                     livreur.setDisponibilite(true);
-                    livreur = stechnique.selectNewLivreur(commande.getPoidsTotal(), client, restaurant);
-                    if(livreur == null){
+                    livreur = stechnique.selectNewLivreur(commande.getPoidsTotal(), client, restaurant, getLivreurs());
+                    if (livreur == null) {
                         commande.setEtat(3);
                         System.out.println("Aucun livreur disponible pour cette commande. Veuillez recommencer plus tard..)");
                     }
@@ -131,19 +133,10 @@ public class ServiceMetier {
             System.out.println("Veuillez entrer une nouvelle commande avec moins de produits");
         }
     }
-
-    /*public void validerCommande(Livreur l) throws Exception {
-        l.setDisponibilite(false);
-        try {
-            stechnique.updateLivreur(l);
-        } catch (Exception ex) {
-            throw ex;
-        }
-    }//elle sert*/
+    
     public void finirCommande(Commande commande, Livreur livreur) {
-        //commande.getLivreur().finirCommande(commande);
         livreur.finirCommande(commande);
-        stechnique.updateCommande(commande);
+        updateCommande(commande);
     }
 
     public List<Restaurant> getRestaurants() {
@@ -171,9 +164,43 @@ public class ServiceMetier {
         JpaUtil.fermerEntityManager();
         return clients;
     }
-
+    
+    public void updateLivreur(Livreur livreur) throws Exception {
+        JpaUtil.creerEntityManager();
+        JpaUtil.ouvrirTransaction();
+        try {
+            ldao.update(livreur);
+            JpaUtil.validerTransaction();
+        } catch (RollbackException ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
+        }
+        JpaUtil.fermerEntityManager();
+    }
+    
+    public void updateCommande(Commande commande) {
+        JpaUtil.creerEntityManager();
+        JpaUtil.ouvrirTransaction();
+        try {
+            codao.update(commande);
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        JpaUtil.validerTransaction();
+        JpaUtil.fermerEntityManager();
+    }
     public List<Livreur> getLivreurs() {
-        return stechnique.getLivreurs();
+        JpaUtil.creerEntityManager();
+        //JpaUtil.ouvrirTransaction();
+        List<Livreur> livreurs = new ArrayList();
+        try {
+            livreurs = ldao.findAll();
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       // JpaUtil.validerTransaction();
+        JpaUtil.fermerEntityManager();
+        return livreurs;
     }
 
     public List<Commande> getCommandes() {
@@ -190,8 +217,17 @@ public class ServiceMetier {
         return commandes;
     }
     
-    public List<Commande> getCommandesForLivreur(Livreur li) {
-        return li.getCommandes();
+    public Client editClient (Client client){
+        JpaUtil.creerEntityManager();
+        JpaUtil.ouvrirTransaction();
+        try {
+            cdao.update(client);
+        } catch (Exception ex) {
+            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        JpaUtil.validerTransaction();
+        JpaUtil.fermerEntityManager();
+		return client;
     }
 
     public void createLivreurs() {

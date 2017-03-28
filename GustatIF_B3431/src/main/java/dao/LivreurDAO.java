@@ -46,18 +46,14 @@ public class LivreurDAO {
     }
 
     public List<Livreur> findAll() throws Exception {
-        System.out.println("ISALOP 1");
         EntityManager em = JpaUtil.obtenirEntityManager();
-        System.out.println("ISALOP 2");
         List<Livreur> livreurs = null;
-        System.out.println("ISALOP 3");
         try {
             Query q = em.createQuery("SELECT c FROM Livreur c");
             livreurs = (List<Livreur>) q.getResultList();
         } catch (Exception e) {
             throw e;
         }
-        System.out.println("ISALOP 4");
         return livreurs;
     }
 

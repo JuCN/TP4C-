@@ -39,36 +39,11 @@ public class ServiceTechnique {
     RestaurantDAO rdao = new RestaurantDAO();
     Scanner clavier = new Scanner(System.in);
 
-    public void updateLivreur(Livreur livreur) throws Exception {
-        JpaUtil.creerEntityManager();
-        JpaUtil.ouvrirTransaction();
-        try {
-            //Envoyer Mails??
-            ldao.update(livreur);
-            JpaUtil.validerTransaction();
-        } catch (RollbackException ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-            throw ex;
-        }
-        JpaUtil.fermerEntityManager();
-    }
     
-    public void updateCommande(Commande commande) {
-        JpaUtil.creerEntityManager();
-        JpaUtil.ouvrirTransaction();
-        try {
-            codao.update(commande);
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        JpaUtil.validerTransaction();
-        JpaUtil.fermerEntityManager();
-    }
 
-    public Livreur selectNewLivreur(double poids, Client client, Restaurant restaurant) {
+    public Livreur selectNewLivreur(double poids, Client client, Restaurant restaurant, List<Livreur> livreurs) {
         Livreur livreur;
         List<Livreur> livreursDispo = new ArrayList();
-        List<Livreur> livreurs = getLivreurs();
         for (int i = 0; i < livreurs.size(); i++) {
             Livreur liv = livreurs.get(i);
             if (liv.getDisponibilite() && liv.getCapacite() >= poids) {
@@ -105,19 +80,7 @@ public class ServiceTechnique {
         return distance * 60.0 / vitesse;
     }
 
-    public List<Livreur> getLivreurs() {
-        JpaUtil.creerEntityManager();
-        //JpaUtil.ouvrirTransaction();
-        List<Livreur> livreurs = new ArrayList();
-        try {
-            livreurs = ldao.findAll();
-        } catch (Exception ex) {
-            Logger.getLogger(ServiceMetier.class.getName()).log(Level.SEVERE, null, ex);
-        }
-       // JpaUtil.validerTransaction();
-        JpaUtil.fermerEntityManager();
-        return livreurs;
-    }
+    
 
     public void envoiMailInscription(int etat, Client cl) {
         //si 0 echec si 1 reussi

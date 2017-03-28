@@ -128,7 +128,6 @@ public class Commande implements Serializable{
     }
     
     public void setLivreur(Livreur l){
-        System.out.println("Héhé");
         livreur = l;
     }
     
@@ -183,6 +182,12 @@ public class Commande implements Serializable{
     }
     
     public String toString(){
-        return "Commande n°"+id+" du client "+ client.getId()+ "effectuée le "+ dateDeb;
+        String res="";
+        if(etat.equals("En cours")){
+            res = "Commande n° "+id+" du client "+ client.getId()+ "effectuée le "+ dateDeb +" et en attente de livraison.";
+        } else {
+            res = "Commande n° "+id+" du client "+ client.getId()+ "effectuée le "+ dateDeb +" et livrée le " + dateFin;
+        }
+        return res;
     }
 }

@@ -34,7 +34,7 @@ public class Main {
 
         JpaUtil.init();
 
-        smetier.createLivreurs(); //a mettre que si pas de livreurs
+        //smetier.createLivreurs(); //a mettre que si pas de livreurs
         System.out.println("Bienvenue sur l'application GustatIF ! ");
 
         choixIdentite();
@@ -82,10 +82,10 @@ public class Main {
         }
         Livreur livreur = livreurs.get(s);
 
-        Integer t = null;
+        Integer t = -1;
 
         while (t != 0) {
-            t = lireInteger("Souhaitez vous cloturer votre commande(1) ou consulter votre historique des commandes(2)  ou quitter (0) ?\n", Arrays.asList(0, 1, 2));
+            t = lireInteger("Souhaitez vous cloturer votre commande(1), consulter votre historique des commandes(2)  ou quitter (0) ?\n", Arrays.asList(0, 1, 2));
 
             switch (t) {
 
@@ -112,12 +112,12 @@ public class Main {
                     break;
 
                 case 2:
-                    List<Commande> commandes = smetier.getCommandesForLivreur(livreur);
+                    List<Commande> commandes = livreur.getCommandes();
                     for (int i = 0; i < commandes.size(); i++) {
-                        if (commandes.get(i).getEtat().equals("En cours")) {
+                       
                             System.out.println("Clients : " + commandes.get(i).getClient() + " Restaurant : " + commandes.get(i).getRestaurant()
-                                    + " heure de debut : " + commandes.get(i).getDateDeb());
-                        }
+                                    + " heure de debut : " + commandes.get(i).getDateDeb() + " etat : "+commandes.get(i).getEtat());
+                       
                     }
                     break;
             }
@@ -149,6 +149,8 @@ public class Main {
                         s = lireInteger("Quel drone ? #Entrez le numero correspondant: ", l);
                     }
                     Livreur livreur = livreurs.get(s);
+                    
+                    
                     Integer f = null;
 
                     if (!livreur.getCommandes().isEmpty()) {
@@ -261,12 +263,36 @@ public class Main {
         n = -1;
         while (n != 0) {
             n = -1;
-            n = lireInteger("Voulez vous effectuer une commande (1) ou quitter l'application (0) ?", Arrays.asList(0, 1));
-            if (n == 1) {
-                createCommande(client);
+            n = lireInteger("Voulez vous effectuer une commande (1), consulter votre historique de commandes(2) ou quitter l'application (0) ?", Arrays.asList(0, 1, 2));
+            switch(n){
+                case 1 :createCommande(client);
+                        break;
+                case 2 :consultCommandes(client);
+                        break;
+                default: break;
             }
         }
 
+    }
+    
+    public static void consultCommandes(Client client){
+        List<Commande> commandes = client.getCommandes();
+        System.out.println("La liste de vos commandes passées :");
+        int n=0;
+        for(Commande commande : commandes){
+            if(commande.getEtat().equals("Finie")){
+                n++;
+                System.out.println("("+n+")" + commande);
+            }
+        }
+        System.out.println("La liste de vos commandes en cours :");
+        n=0;
+        for(Commande commande : commandes){
+            if(commande.getEtat().equals("En cours")){
+                n++;
+                System.out.println("("+n+")" + commande);
+            }
+        }
     }
 
     public static Client signIn() {
